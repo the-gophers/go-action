@@ -1,0 +1,19 @@
+name: Name of your action
+author: Your Name
+description: Description of your action
+branding:
+  icon: message-circle
+  color: blue
+inputs:
+  sample:
+    description: sample description
+    required: true
+outputs:
+  sampleOutput:
+    description: some sample output
+runs:
+  using: docker
+  image: Dockerfile
+  args:
+    - --sample
+    - "${{ inputs.sample }}"
