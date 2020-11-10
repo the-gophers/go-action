@@ -19,4 +19,4 @@ jobs:
         env:
           DRY_RUN: ${{ github.event.inputs.dry-run }}
         with:
-          sample: ${ inputs.sample }
+          sample: ${ github.event.inputs.sample }
