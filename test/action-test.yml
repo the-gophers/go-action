@@ -1,0 +1,22 @@
+# this action is intended to be added to a new test repo to assist in testing this action
+
+name: test-action
+on:
+  workflow_dispatch:
+    inputs:
+      sample:
+        description: 'some sample text'
+        required: true
+      dry-run:
+        description: 'dry-run (true or false)'
+        required: false
+        default: false
+jobs:
+  test-action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: your-repo/templated-action@main
+        env:
+          DRY_RUN: ${{ github.event.inputs.dry-run }}
+        with:
+          sample: ${ inputs.sample }

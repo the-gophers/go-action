@@ -112,5 +112,56 @@ Once you push your first image you will also need to make the Container Registry
 ## Lab Video
 TODO: record and post the first lab walking through creation, execution and optimization
 
+## Lab Instructions
+1) Click on "Use this template" on https://github.com/the-gophers/go-action, and create a repo of your own. I'm going 
+   to call mine "templated-action", make it public, and click "Create repository from template".
+2) Clone your newly crated repo
+3) Run `make`. It should install some tools and complete making `./bin/go-action`.
+4) Run `./bin/go-action`. This is Go application we are going to bake into a GitHub Action. Not much, is it? Well,
+    when we are done, you can add whatever code you want to it!
+    ```shell script
+    $ ./bin/go-action 
+    2020/11/10 16:21:40 --sample can't be empty
+    ```
+5) Run `./bin/go-action --sample foo`
+    ```shell script
+    $ ./bin/go-action --sample foo
+    sample was "foo"
+    ::set-output name=sampleOutput::env var DRY_RUN was false or not specified
+    ```
+6) Checkout a new branch and let's make this our own GitHub Action. Run `git checkout -b my-action`
+7) Update `./action.yml` name, description, and author to something reasonable. The `name` field needs to be
+   unique to others in the store.
+8) When you are done with your changes, commit them, push your branch to GitHub, and open a pull request. In the PR,
+   you should see the CI action run and complete successfully. LGTM! Let's merge these changes. Click the
+   "Merge pull request" button, then delete the branch.
+9) Check out `main` and pull down the latest changes from GitHub (`git pull`).
+10) Let's create a new test repo to run our new GitHub Action. I'm going to call mine `test-repo`. In that repo,
+    move [./test/action-test.yml](./test/action-test.yml) into `test-repo` at `./github/workflows/action-test.yml`.
+    Change `uses: your-repo/templated-action@main` in the action to point to your repo. Commit and push that 
+    workflow to `test-repo`.
+11) In `test-repo` click on Actions and run `test-action` with the inputs you desire. Navigate the UI to the running
+    action and see that it built the action, built the Dockerfile and executed the entrypoint Go application. Also note
+    how long it took to run the action. **Using a Dockerfile will cause it to rebuild that image EACH time the action
+    runs!**. We can do better than that. More ahead.
+12) Let's jump back to `templated-action` repo and tag our first release (`git tag v0.0.1`) and push the tag
+    (`git push origin v0.0.1`). This should create our first release in GitHub via the `release action` workflow.
+13) Navigate to the `v0.0.1` release and click edit. Within the release edit page, you should see "Publish this Action to the GitHub Marketplace".
+    If you check that box, your action will now be publicly advertised to all of GitHub!
+14) **PSA:** The rest of this is optional. If you don't care about your action going fast, stop right here.
+15) Now we are going to make this **FAST** by pre-baking our container image. Go back to `templated-action` and edit
+    `./github/workflows/release-image.yml`. Change `docker.pkg.github.com/owner/` to use your repo owner for `owner`.
+    Commit and push the changes.
+16) Create a [PAT](https://github.com/settings/tokens) with `repo:write` privileges. Copy the PAT and add it to the
+    `templated-action` repo's secrets name `CR_PAT`. This will be used in the `release image` workflow.
+17) Now tag the repo with `git tag image-v0.0.1` and then push the tag `git push origin image-v0.0.1`. This will
+    kick off the image release build.
+18) Replace `image: Dockerfile` with `image: docker://your-repo/your-image:0.0.1` replacing the repo and image name.
+    Commit the changes and tag a new release of the Action as done in #12.
+19) Rerun the action in `test-action` and see how much faster the action runs now that it doesn't have to rebuild
+    the container image each time.
+    
+
+
 ## Contributions
 Always welcome! Please open a PR or an issue, and remember to follow the [Gopher Code of Conduct](https://www.gophercon.com/page/1475132/code-of-conduct).

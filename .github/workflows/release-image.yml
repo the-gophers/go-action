@@ -23,5 +23,5 @@ jobs:
         with:
           push: true
           tags: |
-            ghcr.io/owner/image:${{ env.RELEASE_VERSION }}
-            ghcr.io/owner/image:latest
+            ghcr.io/owner/templated-repo:${{ env.RELEASE_VERSION }}
+            ghcr.io/owner/templated-repo:latest
