@@ -19,3 +19,7 @@ jobs:
         env:
           COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: make ci
+      - name: run action from this ref
+        uses: ${ env.GITHUB_REPOSITORY }@${ env.GITHUB_SHA }
+        with:
+          sample: some value
