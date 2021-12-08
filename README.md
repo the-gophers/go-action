@@ -31,7 +31,7 @@ go test ./...
         └── tweeter_test.go
 ```
 
-#### [action.yml](./action.yml)
+#### [action.yaml](./action.yaml)
 The `action.yml` file contains the metadata which describes our action. This includes, but is not limited
 to the following.
 - name, description and author
