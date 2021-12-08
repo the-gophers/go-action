@@ -10,29 +10,25 @@ should be able to clone and navigate to the root of the repository.
 ### First Build
 From the root of your repo, you should be able to run the following to build and test the Go action.
 ```shell script
-make
+go build ./...
+go test ./...
 ```
 
 ### What's in Here?
 
 ```
 .
-├── action.yml
 ├── Dockerfile
-├── .github
-│    └── workflows
-│       ├── ci.yml
-│       ├── release-action.yml
-│       └── release-image.yml
-├── .gitignore
+├── LICENSE
+├── README.md
+├── action.yaml
 ├── go.mod
 ├── go.sum
-├── LICENSE
 ├── main.go
-├── Makefile
-├── README.md
-└── scripts
-    └── go_install.sh
+└── pkg
+    └── tweeter
+        ├── tweeter.go
+        └── tweeter_test.go
 ```
 
 #### [action.yml](./action.yml)
@@ -66,36 +62,23 @@ Go module definition which will need to be updated with the name of your module.
 
 #### [main.go](./main.go)
 This is the Go entrypoint for your GitHub Action. It is a simple command line application which can be
-executed outside the context of the Action by running the following.
-```shell script
-$ make
- installing tools
- running gofmt…
- running golint…
- running vet…
- running tidy…
- buiding ./bin/go-action
+executed outside the context of the Action by running the following. This is where you will add your Go code for your 
+Action.
 
-$ ./bin/go-action --sample foo
-sample was "foo"
-::set-output name=sampleOutput::env var DRY_RUN was false or not specified
-``` 
+#### [.github/workflows/tweeter-automation.yaml](.github/workflows/tweeter-automation.yaml)
+This is the continuous integration / CLI release automation. The release workflow defined in this automation will
+is triggered by tags shaped like `v1.2.3`, and will create a GitHub release for a pushed tag. The release will 
+use the [./github/release.yml](.github/release.yml) to automatically generate structured release notes based on
+pull request tags.
 
-This is where you will add your Go code for your Action.
+#### [.github/workflows/action-version.yaml](./.github/workflows/action-version.yaml)
+This action triggers when a new release is published. Upon publication of the new release, this will tag the repository
+with the shortened major semantic version pointing at the highest semantic version within that major version. For 
+example, `v1.2.2` and `v1` point to the same ref `xyz`, a new tag is introduced `v1.2.3` which points to ref `abc`, this 
+action will move the `v1` tag to point to `abc` rather than `xyz`. This enables consumers of an action to take a 
+"floating" major semantic version dependency, like `my-action@v1`. 
 
-#### [Makefile](./Makefile)
-This contains a lot of build foo that you shouldn't have to deal with.
-
-#### [.github/workflows/ci.yml](.github/workflows/ci.yml)
-This is the "build / test" action which will clone the repo, install Go, and then run `make ci`. This runs
-on all pull request and pushes to `main` branch.
-
-#### [.github/workflows/release-action.yml](./.github/workflows/release-action.yml)
-This action runs on tags shaped like `v1.2.3`, and will create a GitHub release for the pushed tag.
-
-After you push your first release, you can then publish your action to the GitHub Action Marketplace.
-
-#### [.github/workflows/release-image.yml](./.github/workflows/release-image.yml)
+#### [.github/workflows/image-release.yaml](./.github/workflows/image-release.yaml)
 This action runs on tags shaped like `image-v1.2.3`, and will build and push a container image to the
 GitHub Container Registry.
 
@@ -116,18 +99,11 @@ TODO: record and post the first lab walking through creation, execution and opti
 1) Click on "Use this template" on https://github.com/the-gophers/go-action, and create a repo of your own. I'm going 
    to call mine "templated-action", make it public, and click "Create repository from template".
 2) Clone your newly crated repo
-3) Run `make`. It should install some tools and complete making `./bin/go-action`.
-4) Run `./bin/go-action`. This is Go application we are going to bake into a GitHub Action. Not much, is it? Well,
-    when we are done, you can add whatever code you want to it!
+3) Run `go run . -h`.
+5) Run
     ```shell script
-    $ ./bin/go-action 
-    2020/11/10 16:21:40 --sample can't be empty
-    ```
-5) Run `./bin/go-action --sample foo`
-    ```shell script
-    $ ./bin/go-action --sample foo
-    sample was "foo"
-    ::set-output name=sampleOutput::env var DRY_RUN was false or not specified
+    $ go run . --dryRun --message hello
+    ::set-output name=sentMessage::hello
     ```
 6) Checkout a new branch and let's make this our own GitHub Action. Run `git checkout -b my-action`
 7) Update `./action.yml` name, description, and author to something reasonable. The `name` field needs to be
@@ -136,29 +112,23 @@ TODO: record and post the first lab walking through creation, execution and opti
    you should see the CI action run and complete successfully. LGTM! Let's merge these changes. Click the
    "Merge pull request" button, then delete the branch.
 9) Check out `main` and pull down the latest changes from GitHub (`git pull`).
-10) Let's create a new test repo to run our new GitHub Action. I'm going to call mine `test-repo`. In that repo,
-    move [./test/action-test.yml](./test/action-test.yml) into `test-repo` at `./github/workflows/action-test.yml`.
-    Change `uses: your-repo/templated-action@main` in the action to point to your repo. Commit and push that 
-    workflow to `test-repo`.
 11) In `test-repo` click on Actions and run `test-action` with the inputs you desire. Navigate the UI to the running
     action and see that it built the action, built the Dockerfile and executed the entrypoint Go application. Also note
     how long it took to run the action. **Using a Dockerfile will cause it to rebuild that image EACH time the action
     runs!**. We can do better than that. More ahead.
-12) Let's jump back to `templated-action` repo and tag our first release (`git tag v0.0.1`) and push the tag
-    (`git push origin v0.0.1`). This should create our first release in GitHub via the `release action` workflow.
-13) Navigate to the `v0.0.1` release and click edit. Within the release edit page, you should see "Publish this Action to the GitHub Marketplace".
+12) Let's tag our first release (`git tag v1.0.0`) and push the tag
+    (`git push origin v1.0.0`). This should create our first release in GitHub via the `release action` workflow.
+13) Navigate to the `v1.0.0` release and click edit. Within the release edit page, you should see "Publish this Action to the GitHub Marketplace".
     If you check that box, your action will now be publicly advertised to all of GitHub!
 14) **PSA:** The rest of this is optional. If you don't care about your action going fast, stop right here.
 15) Now we are going to make this **FAST** by pre-baking our container image. Go back to `templated-action` and edit
     `./github/workflows/release-image.yml`. Change `docker.pkg.github.com/owner/` to use your repo owner for `owner`.
     Commit and push the changes.
-16) Create a [PAT](https://github.com/settings/tokens) with `repo:write` privileges. Copy the PAT and add it to the
-    `templated-action` repo's secrets name `CR_PAT`. This will be used in the `release image` workflow.
-17) Now tag the repo with `git tag image-v0.0.1` and then push the tag `git push origin image-v0.0.1`. This will
+17) Now tag the repo with `git tag image-v1.0.0` and then push the tag `git push origin image-v1.0.0`. This will
     kick off the image release build.
-18) Replace `image: Dockerfile` with `image: docker://your-repo/your-image:0.0.1` replacing the repo and image name.
+18) Replace `image: Dockerfile` with `image: docker://ghcr.io/your-repo/your-image:1.0.0` replacing the repo and image name.
     Commit the changes and tag a new release of the Action as done in #12.
-19) Rerun the action in `test-action` and see how much faster the action runs now that it doesn't have to rebuild
+19) Rerun the continuous integration and see how much faster the action runs now that it doesn't have to rebuild
     the container image each time.
     
 

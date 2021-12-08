@@ -1,4 +1,4 @@
-FROM golang:1.15.2 as builder
+FROM golang:1.17 as builder
 WORKDIR /workspace
 
 # Run this with docker build --build_arg $(go env GOPROXY) to override the goproxy
@@ -17,10 +17,10 @@ COPY ./ ./
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
     go build -a -ldflags '-extldflags "-static"' \
-    -o action .
+    -o tweeter .
 
 # Copy the action into a thin image
 FROM gcr.io/distroless/static:latest
 WORKDIR /
-COPY --from=builder /workspace/action .
-ENTRYPOINT ["/action"]
+COPY --from=builder /workspace/tweeter .
+ENTRYPOINT ["/tweeter"]
