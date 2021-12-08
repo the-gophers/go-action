@@ -86,11 +86,7 @@ This action is super useful for optimizing the execution time of your action. By
 image used in the Action, each invocation of your action can reference the image and not have to
 rebuild it for each invocation.
 
-You will need to create a PAT by going to https://github.com/settings/tokens and creating a token
-with `write:packages` scope. After creating the token, you will need to add it to the secrets in your
-Action repo.
-
-Once you push your first image you will also need to make the Container Registry to allow public access.
+Once you push your first image you will also need to update the Container Registry to allow public access.
 
 ## Lab Video
 TODO: record and post the first lab walking through creation, execution and optimization
