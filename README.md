@@ -118,11 +118,11 @@ TODO: record and post the first lab walking through creation, execution and opti
     If you check that box, your action will now be publicly advertised to all of GitHub!
 14) **PSA:** The rest of this is optional. If you don't care about your action going fast, stop right here.
 15) Now we are going to make this **FAST** by pre-baking our container image. Go back to `templated-action` and edit
-    `./github/workflows/image-release.yml`. Change `docker.pkg.github.com/owner/` to use your repo owner for `owner`.
+    `./github/workflows/image-release.yml`. Change `ghcr.io/the-gophers/go-action` to use your repo owner for `the-gophers` and your repo name for `go-action`.
     Commit and push the changes.
 17) Now tag the repo with `git tag image-v1.0.0` and then push the tag `git push origin image-v1.0.0`. This will
     kick off the image release build.
-18) Replace `image: Dockerfile` with `image: docker://ghcr.io/your-repo/your-image:1.0.0` replacing the repo and image name.
+18) Update `./action.yaml` to replace `image: Dockerfile` with `image: docker://ghcr.io/your-repo/your-image:1.0.0` replacing the repo and image name.
     Commit the changes and tag a new release of the Action as done in #12.
 19) Rerun the continuous integration and see how much faster the action runs now that it doesn't have to rebuild
     the container image each time.
