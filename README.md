@@ -53,7 +53,7 @@ it takes to build your Go code. Later, we'll change this to a pre-built image fo
 
 #### [Dockerfile](./Dockerfile)
 This Dockerfile should look relatively familiar to folks who use containers to build Go code. We create a
-builder intermediate image based on Go 1.15.2, pull in the source, and build the application. After the
+builder intermediate image based on Go 1.17, pull in the source, and build the application. After the
 application has been built, the statically linked binary is copied into a thin image, which results in 
 an image of roughly 8 MB.
 
@@ -93,8 +93,8 @@ TODO: record and post the first lab walking through creation, execution and opti
 
 ## Lab Instructions
 1) Click on "Use this template" on https://github.com/the-gophers/go-action, and create a repo of your own. I'm going 
-   to call mine "templated-action", make it public, and click "Create repository from template".
-2) Clone your newly crated repo
+   to call mine `templated-action`, make it public, and click "Create repository from template".
+2) Clone your newly created repo
 3) Run `go run . -h`.
 5) Run
     ```shell script
@@ -108,7 +108,7 @@ TODO: record and post the first lab walking through creation, execution and opti
    you should see the CI action run and complete successfully. LGTM! Let's merge these changes. Click the
    "Merge pull request" button, then delete the branch.
 9) Check out `main` and pull down the latest changes from GitHub (`git pull`).
-11) In `test-repo` click on Actions and run `test-action` with the inputs you desire. Navigate the UI to the running
+11) In `templated-action` click on Actions and run `test-action` with the inputs you desire. Navigate the UI to the running
     action and see that it built the action, built the Dockerfile and executed the entrypoint Go application. Also note
     how long it took to run the action. **Using a Dockerfile will cause it to rebuild that image EACH time the action
     runs!**. We can do better than that. More ahead.
@@ -118,11 +118,11 @@ TODO: record and post the first lab walking through creation, execution and opti
     If you check that box, your action will now be publicly advertised to all of GitHub!
 14) **PSA:** The rest of this is optional. If you don't care about your action going fast, stop right here.
 15) Now we are going to make this **FAST** by pre-baking our container image. Go back to `templated-action` and edit
-    `./github/workflows/release-image.yml`. Change `docker.pkg.github.com/owner/` to use your repo owner for `owner`.
+    `./github/workflows/image-release.yml`. Change `ghcr.io/the-gophers/go-action` to use your repo owner for `the-gophers` and your repo name for `go-action`.
     Commit and push the changes.
 17) Now tag the repo with `git tag image-v1.0.0` and then push the tag `git push origin image-v1.0.0`. This will
     kick off the image release build.
-18) Replace `image: Dockerfile` with `image: docker://ghcr.io/your-repo/your-image:1.0.0` replacing the repo and image name.
+18) Update `./action.yaml` to replace `image: Dockerfile` with `image: docker://ghcr.io/your-repo/your-image:1.0.0` replacing the repo and image name.
     Commit the changes and tag a new release of the Action as done in #12.
 19) Rerun the continuous integration and see how much faster the action runs now that it doesn't have to rebuild
     the container image each time.
